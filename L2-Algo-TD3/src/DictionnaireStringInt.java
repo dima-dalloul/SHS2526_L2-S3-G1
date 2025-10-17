@@ -1,182 +1,174 @@
 import java.util.Arrays;
 
 public class DictionnaireStringInt {
-    // Ensemble de clés et valeurs, ainsi que le nombre d'éléments
-    private String[] cles;
-    private int[] valeurs;
-    private int nbElements;
+	/**
+	 * Tableau avec les clés
+	 */
+	String[] cles= new String[10];
+	/**
+	 * Tableau avec les valeurs
+	 */
+	private int[] valeurs= new int[10];
+	
+	/**
+	 * nombre de mots réellement présents
+	 */
+	private int nbElements=0;
+	
+	
+	/**
+	 * Ajoute la paire (cle;valeur) si cle n'est pas dans le tableau des cles ou modifie la valeur associée.
+	 * Utilise la méthode de recherche puis effectue des permutations depuis la fin
+	 * @param cle
+	 * @param valeur
+	 */
+	public void ajouterModifier(String cle, int valeur) {
+		int idx = rechercherIdx(cle) ;
+		if (idx>-1) {
+			valeurs[idx]=valeur;
+		}
+		else {
+			agrandir();
+			idx = -idx -1; // ou idx~=idx
+			for (int i=nbElements ; i>idx ;i--) {
+				cles[i]=cles[i-1];
+				valeurs[i]=valeurs[i-1];
+			}
+			cles[idx]=cle;
+			valeurs[idx]=valeur;
+			nbElements+=1;
+			
+		}
+	}
+	
+	public int rechercherValeur(String cle) {
+		int idx = rechercherIdx(cle);
+		if (idx<0) return 0;
+		return valeurs[idx];
+	}
+	
+	/**
+	 * Méthode de recherche dichotomique d'une clé dans le tableau des clés
+	 * @param cle Chaine à rechercher dans le tableau des clés
+	 * @return l'indice de la clé dans le tableau ou -1-idx avec idx qui est l'indice où aurait du se trouver la clé
+	 */
+	private int rechercherIdx(String cle) {
+		int min=0;
+		int max=nbElements;
+		while (min<max) {
+			int idx = (max+min)/2;
+			int comp = cle.compareTo(cles[idx]);
+			if (comp==0) {
+				return idx;
+			}
+			else if (comp<0) {
+				max=idx;
+			}
+			else {
+				min=idx+1;
+			}
+		}
+		return -1-(max+min)/2;
+	}
+	
+	
+	private void agrandir() {
+		if (cles.length==nbElements) {
+			cles=Arrays.copyOf(cles, cles.length+10);
+			valeurs=Arrays.copyOf(valeurs, valeurs.length+10);
+		}
+	}
+	
 
-    // Constructeur
-    public DictionnaireStringInt() {
-        cles = new String[10];
-        valeurs = new int[10];
-        nbElements = 0;
-    }
+	public int supprimer(String mot) {
+		int idx = rechercherIdx(mot);
+		if (idx<0) return 0;
+		int res = valeurs[idx];
+		for (int i=idx ; i<nbElements-1 ; i++) {
+			cles[i]=cles[i+1];
+			valeurs[i]=valeurs[i+1];
+		}
+		// on aurait pu supprimer ce qui se trouve à nbElements, mais ce n'est pas obligatoire
+		nbElements--;
+		return res;
+	}
+	
+	
+	public String toString() {
+		String text="'{";
+		for (int i=0 ; i<nbElements ; i++) {
+			text+="("+cles[i]+" : "+valeurs[i]+"),";
+		}
+		if (nbElements > 0) {
+			text = text.substring(0, text.length()-1);
+		}
+		return text+"}";
+	}
 
-    // Méthodes
-    /*
-        Écrire la méthode rechercherIdx permettant de rechercher et retourner l’indice d’une clé
-        passée en paramètre. Si la clé n’est pas présente la méthode retournera la valeur -1-idx
-        (où idx est l’indice de la case où aurait du se trouver la clé).
-        Rappel : l’égalité entre deux objets est réalisée en utilisant la méthode « equals ».
-     */
-    public int rechercherIdx(String cleATrouver){
-        // Tester si le tableau est vide
-        if(nbElements == 0){
-            return -1;
-        } else {
-            // Le tableau n'est pas vide donc on peut chercher
-            // On boucle sur la table clés
-            for(int i = 0; i < nbElements; i++){
-                // On teste l'égalité entre la clé actuelle et la clé à trouver
-                if(cles[i].equals(cleATrouver)){
-                    // Si on la trouve, on renvoie l'indice
-                    return i;
-                }
-            }
-
-            // Si on arrive ici, c'est que la clé n'a pas été trouvée. Donc on doit renvoyer -1-nbElements
-            return -1 - nbElements;
-        }
-    }
-
-    /*
-        En se servant de la méthode définie à la question précédente, écrire la méthode
-        rechercherValeur retournant la valeur associée à une clé.
-        Si la clé n’est pas présente, on retournera 0.
-     */
-    public int rechercherValeur(String cle){
-        // Tester si le tableau est vide
-        if(nbElements > 0) {
-            // Le tableau n'est pas vide donc on peut chercher
-            int indice = rechercherIdx(cle);
-            if(indice > -1) {
-                // Si l'indice renvoyé est nul ou positif, c'est que la clé est bien présente
-                return valeurs[indice];
-            } else {
-                // Si l'indice est négatif, c'est que la clé n'est pas dans le tableau
-                return 0;
-            }
-        } else {
-            // Le tableau est vide donc on renvoie 0
-            return 0;
-        }
-    }
-
-    /*
-        Écrire la méthode agrandir qui permet de remplacer les tableaux si ils sont pleins.
-        Les nouveaux tableaux auront une taille supérieure de 10 éléments
-        (par rapport aux anciens tableaux).
-     */
-    public void agrandir(){
-        if(nbElements == cles.length){
-            // Si le nombre d'élémens est égal à la taille d'un des tableaux, cela indique qu'ils sont pleins
-            // Solution 1 : s'appuyer sur les méthodes existantes
-            cles = Arrays.copyOf(cles, cles.length + 10);
-            valeurs = Arrays.copyOf(valeurs, valeurs.length + 10);
-
-            /*
-            // Solution 2 : faire à la main
-            // Je crée le nouveau tableau
-            String[] clesNouveau = new String[cles.length + 10];
-            // Je copie les valeurs stockées depuis l'ancien vers le nouveau
-            for(int i = 0; i < cles.length; i++){
-                clesNouveau[i] = "" + cles[i];
-            }
-            // J'écrase la référence de l'ancien tableau vers le nouveau
-            cles = clesNouveau;
-
-            // Je crée le nouveau tableau
-            String[] valeursNouveau = new String[valeurs.length + 10];
-            // Je copie les valeurs stockées depuis l'ancien vers le nouveau
-            for(int i = 0; i < valeurs.length; i++){
-                valeursNouveau[i] = "" + valeurs[i];
-            }
-            // J'écrase la référence de l'ancien tableau vers le nouveau
-            valeurs = valeursNouveau;
-             */
-        }
-    }
-
-    /*
-    Écrire la méthode ajouterModifier qui permet d’ajouter une paire (clé ; valeur) si
-    la clé n’est pas présente ou de remplacer valeur associée si la clé est déjà présente.
-    Avant l’ajout, cette méthode appellera la méthode définie à la question précédente
-    pour s’assurer qu’il y a la place suffisante dans le tableau
-     */
-    public void ajouterModifier(String cle, int valeurNouvelle){
-        // On s'appuie sur la méthode précédente pour voir si la clé est déjà présente
-        int indiceCle = rechercherIdx(cle);
-        // Si l'indice renvoyé est nul ou positif, c'est que la clé est bien présente
-        if(indiceCle > -1){
-            // Cas remplacement valeur
-            // On remplace la valeur avec la nouvelle valeur
-            valeurs[indiceCle] = valeurNouvelle;
-        } else {
-            // Cas ajout clé et valeur
-            // J'agrandis le tableau si besoin
-            agrandir();
-            // On rajoute la cle et la valeur au bout de chacun des tableaux
-            cles[nbElements] = cle;
-            valeurs[nbElements] = valeurNouvelle;
-            // On incrémente le nombre d'éléments
-            nbElements++;
-        }
-    }
-
-    /*
-    Écrire la méthode supprimer qui supprime couple (clé ; valeur).
-    Pour cela, on remplacera la clé, resp. la valeur, à supprimer par le dernier élément du tableau.
-     */
-    public void supprimer(String cleASupprimer, int valeurASupprimer){
-        // On s'appuie sur la méthode précédente pour voir si la clé est déjà présente
-        int indiceCle = rechercherIdx(cleASupprimer);
-        // Si l'indice est négatif, c'est que la clé n'est pas dans le tableau
-        if(indiceCle <= -1)
-            System.out.println("Aucune clé trouvée avec les éléments donnés en paramètre");
-        else {
-            // L'indice n'est pas négatif, donc la clé est présente dans le tableau
-            // On écrase la clé et la valeur de l'indice à supprimer avec la clé et la valeur du dernier élément
-            // du tablau
-            cles[indiceCle] = cles[nbElements -1];
-            valeurs[indiceCle] = valeurs[nbElements -1];
-            // On vide le dernier élément des 2 tableaux
-            cles[nbElements-1] = "";
-            valeurs[nbElements-1] = 0;
-            // On décrémente le nombre d'éléments
-            nbElements--;
-            // On affiche le résultat
-            System.out.println("Le couple (" + cleASupprimer + ", " + valeurASupprimer + ") a bien été supprimé");
-            System.out.println("Le nombre d'élémets est de " + nbElements);
-        }
-    }
-
-    /*
-    Écrire la méthode String toString() permettant de retourner une représentation du tableau
-    associatif sous forme de chaîne de caractères.
-    L’exemple du début sera représenté par la chaîne
-    « { [Pomme : 3] , [Poire : 5] , [Banane : 2] } »
-     */
-    public String toString(){
-        // J'ouvre l'accolade
-        String resultat = "{ ";
-
-        // Je boucle sur les 2 tableaux
-        for(int i = 0; i < nbElements; i++){
-            if(i < nbElements -1) {
-                // Solution 1
-                resultat = resultat + "[" + cles[i] + " : " + valeurs[i] + "] , ";
-                // Solution 2
-                // resultat += "[" + cles[i] + " : " + valeurs[i] + "] , ";
-            } else {
-                // Solution 1
-                resultat = resultat + "[" + cles[i] + " : " + valeurs[i] + "] ";
-                // Solution 2
-                // resultat += "[" + cles[i] + " : " + valeurs[i] + "]  ";
-            }
-        }
-        // Je ferme l'accolade
-        resultat = resultat + "}";
-        return resultat;
-    }
+	public int donnerNbCles() {
+		return nbElements;	
+	}
+	
+	public String rechercherCleAvecValeurMax() {
+		int max=0;
+		String mot="";
+		for (int i=0 ; i<nbElements ; i++) {
+			if (max<valeurs[i]) {
+				max=valeurs[i];
+				mot=cles[i];
+			}
+		}
+		return mot;
+	}
+	
+	public String[] construireTableauDesCles() {
+		String[] res = new String[nbElements];
+		for (int i=0 ; i<nbElements ; i++) {
+			res[i]=cles[i];
+		}
+		return res;
+		// ou
+		//return Arrays.copyOf(cles, nbElements);
+	}
+	
+	
+	
+	/* VERSION NON TRIEE */
+	/*
+	private int rechercherIdx(String cle) {
+		for (int i=0 ; i<nbElements ; i++) {
+			if (cles[i].equals(cle)) {
+				return i;
+			}
+		}
+		return -1-nbElements;
+	}
+	
+	public void ajouterModifier(String cle, int valeur) {
+		int idx = rechercherIdx(cle) ;
+		if (idx>-1) {
+			valeurs[idx]=valeur;;
+		}
+		else {
+			agrandir();
+			cles[nbElements]=cle;
+			valeurs[nbElements]=valeur;
+			nbElements+=1;
+		}
+	}
+	
+	public int supprimer(String mot) {
+		int idx = rechercherIdx(mot);
+		if (idx==-1) return 0;
+		int res = valeurs[idx];
+		if (idx<nbElements-1) {
+			cles[idx]=cles[nbElements-1];
+			valeurs[idx]=valeurs[nbElements-1];
+			// eventuellement (pour etre clean)
+			cles[nbElements-1]=null;
+		}
+		nbElements--;
+		return res;
+	}
+	*/
 }
