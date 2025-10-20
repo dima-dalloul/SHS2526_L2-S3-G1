@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class AnalyseOccurrence {
     // Fenêtre principale
-	private JFrame frame;
+    protected JFrame frame;
     // Dictionnaire pour compter les occurrences
 	private DictionnaireStringInt compteur = new DictionnaireStringInt();
 
